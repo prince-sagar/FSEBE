@@ -25,7 +25,7 @@ public class TicketController {
             return ResponseEntity.badRequest().body("Movie name mismatch");
         }
         Ticket bookedTicket = ticketService.bookTicket(ticket);
-        kafkaProducerService.sendMessage("Ticket booked for movie: " + movieName);
+        kafkaProducerService.sendTicketStatusUpdate(movieName, ticket.getTheatreName());
         return ResponseEntity.ok(bookedTicket);
     }
 
