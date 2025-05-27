@@ -50,6 +50,7 @@ public class KafkaConsumerService {
             movie.setStatus("SOLD OUT");
         } else {
             movie.setStatus("BOOK ASAP");
+            movie.setTotalTickets(totalAvailable);
         }
 
         movieRepository.save(movie);
