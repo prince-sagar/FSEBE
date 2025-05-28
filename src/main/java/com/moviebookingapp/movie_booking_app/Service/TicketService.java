@@ -29,26 +29,24 @@ public class TicketService {
             throw new RuntimeException("Movie not found.");
         }
 
-        // Calculate total booked
-        int totalBooked = ticketRepository
-                .findByMovieNameAndTheatreName(ticket.getMovieName(), ticket.getTheatreName())
-                .stream()
-                .mapToInt(Ticket::getNumberOfTickets)
-                .sum();
-
-        int remaining = movie.getTotalTickets() - totalBooked;
-
-        if (ticket.getNumberOfTickets() > remaining) {
+        // Validate availability
+        if (ticket.getNumberOfTickets() > movie.getTotalTickets()) {
             throw new RuntimeException("Not enough tickets available.");
         }
 
+        // Subtract tickets and update movie
+        movie.setTotalTickets(movie.getTotalTickets() - ticket.getNumberOfTickets());
+        movieRepository.save(movie);
+
+        // Save ticket
         Ticket saved = ticketRepository.save(ticket);
 
-        // Notify Kafka
+        // Send update to Kafka (for status update)
         kafkaProducerService.sendTicketStatusUpdate(ticket.getMovieName(), ticket.getTheatreName());
 
         return saved;
     }
+
 
     public List<Ticket> getTickets(String movieName, String theatreName) {
         return ticketRepository.findByMovieNameAndTheatreName(movieName, theatreName);

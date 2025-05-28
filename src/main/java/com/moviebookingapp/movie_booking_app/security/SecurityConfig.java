@@ -13,9 +13,15 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        http.csrf(csrf -> csrf.disable()) // Updated to use the new method
+        http.csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/v1.0/moviebooking/login", "/api/v1.0/moviebooking/register", "/swagger-ui.html", "/v3/api-docs/**").permitAll()
+                        .requestMatchers(
+                                "/api/v1.0/moviebooking/login",
+                                "/api/v1.0/moviebooking/register",
+                                "/swagger-ui.html",
+                                "/v3/api-docs/**",
+                                "/api/v1.0/moviebooking/all"
+                        ).permitAll()
                         .requestMatchers(HttpMethod.DELETE, "/api/v1.0/moviebooking/**").hasRole("ADMIN")
                         .requestMatchers("/api/v1.0/moviebooking/**").authenticated()
                 )
@@ -24,4 +30,5 @@ public class SecurityConfig {
 
         return http.build();
     }
+
 }

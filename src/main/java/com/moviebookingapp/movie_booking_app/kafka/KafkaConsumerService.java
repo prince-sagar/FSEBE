@@ -11,7 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import java.util.List;
 
 @Service
-public class KafkaConsumerService {
+class KafkaConsumerService {
 
     @Autowired
     private TicketRepository ticketRepository;
@@ -27,14 +27,11 @@ public class KafkaConsumerService {
         String movieName = parts[0];
         String theatreName = parts[1];
 
-        List<Ticket> tickets = ticketRepository.findByMovieNameAndTheatreName(movieName, theatreName);
-        int totalBooked = tickets.stream().mapToInt(Ticket::getNumberOfTickets).sum();
-
         Movie movie = movieRepository.findByMovieNameAndTheatreName(movieName, theatreName);
         if (movie != null) {
-            int remaining = movie.getTotalTickets() - totalBooked;
-            movie.setStatus(remaining <= 0 ? "SOLD OUT" : "BOOK ASAP");
+            movie.setStatus(movie.getTotalTickets() <= 0 ? "SOLD OUT" : "BOOK ASAP");
             movieRepository.save(movie);
         }
     }
+
 }
