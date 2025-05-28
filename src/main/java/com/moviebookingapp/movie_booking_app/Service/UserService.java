@@ -22,8 +22,9 @@ public class UserService {
         return userRepository.findByLoginIdAndPassword(loginId, password);
     }
 
-    public User forgotPassword(String loginId) {
+    public User findByLoginId(String loginId) {
         return userRepository.findById(loginId).orElse(null);
     }
 }
+
 

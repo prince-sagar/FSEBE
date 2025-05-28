@@ -3,8 +3,9 @@ package com.moviebookingapp.movie_booking_app.Entity;
 import lombok.Data;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
+
 @Data
-@Document(collection = "users")
+@Document("users")
 public class User {
     @Id
     private String loginId;
@@ -13,4 +14,5 @@ public class User {
     private String email;
     private String password;
     private String contactNumber;
+    private String role = "ROLE_USER"; // default role
 }

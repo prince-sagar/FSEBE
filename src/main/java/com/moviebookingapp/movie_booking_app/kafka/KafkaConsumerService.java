@@ -21,41 +21,20 @@ public class KafkaConsumerService {
 
     @KafkaListener(topics = "ticket-booking-status-topic", groupId = "movie-booking-group")
     public void consume(String message) {
-        System.out.println("Consumed message: " + message);
-
-        // Example message: "Avengers|INOX"
         String[] parts = message.split("\\|");
-        if (parts.length != 2) {
-            System.err.println("Invalid message format");
-            return;
-        }
+        if (parts.length != 2) return;
 
         String movieName = parts[0];
         String theatreName = parts[1];
 
-        // Get all booked tickets for the movie
         List<Ticket> tickets = ticketRepository.findByMovieNameAndTheatreName(movieName, theatreName);
         int totalBooked = tickets.stream().mapToInt(Ticket::getNumberOfTickets).sum();
 
-        // Get the movie record
         Movie movie = movieRepository.findByMovieNameAndTheatreName(movieName, theatreName);
-        if (movie == null) {
-            System.err.println("Movie not found");
-            return;
+        if (movie != null) {
+            int remaining = movie.getTotalTickets() - totalBooked;
+            movie.setStatus(remaining <= 0 ? "SOLD OUT" : "BOOK ASAP");
+            movieRepository.save(movie);
         }
-
-        // Update movie status based on tickets booked
-        int totalAvailable = movie.getTotalTickets() - totalBooked;
-        if (totalAvailable <= 0) {
-            movie.setStatus("SOLD OUT");
-        } else {
-            movie.setStatus("BOOK ASAP");
-            movie.setTotalTickets(totalAvailable);
-        }
-
-        movieRepository.save(movie);
-        System.out.println("Updated movie status to: " + movie.getStatus());
     }
 }
-
-

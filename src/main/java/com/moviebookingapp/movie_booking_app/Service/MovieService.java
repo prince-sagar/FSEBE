@@ -23,8 +23,12 @@ public class MovieService {
         return movieRepository.findByMovieNameAndTheatreName(movieName, theatreName);
     }
 
-    public Movie updateMovie(Movie movie) {
+    public Movie saveOrUpdate(Movie movie) {
         return movieRepository.save(movie);
+    }
+
+    public void deleteMovie(String id) {
+        movieRepository.deleteById(id);
     }
 }
 
