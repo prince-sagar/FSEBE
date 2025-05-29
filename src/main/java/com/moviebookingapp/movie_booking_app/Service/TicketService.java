@@ -8,6 +8,7 @@ import com.moviebookingapp.movie_booking_app.kafka.KafkaProducerService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Arrays;
 import java.util.List;
 
 @Service
@@ -30,9 +31,24 @@ public class TicketService {
         }
 
         // Validate availability
-        if (ticket.getNumberOfTickets() > movie.getTotalTickets()) {
+        if (ticket.getNumberOfTickets() > movie.getTotalTickets() ) {
             throw new RuntimeException("Not enough tickets available.");
         }
+
+        // Validate seat number
+        List<Ticket> bookedSeats = ticketRepository.findSeatsByMovieNameAndTheatreName(ticket.getMovieName(), ticket.getTheatreName());
+        List<String> bookedSeatNumbers = bookedSeats.stream()
+                .map(Ticket::getSeatNumber)
+                .flatMap(seat -> Arrays.stream(seat.split(",")))
+                .toList();
+        String[] requestedSeats = ticket.getSeatNumber().split(",");
+        for (String seat : requestedSeats) {
+            if (bookedSeatNumbers.contains(seat)) {
+                throw new RuntimeException("Seat " + seat + " is already booked.");
+            }
+        }
+
+
 
         // Subtract tickets and update movie
         movie.setTotalTickets(movie.getTotalTickets() - ticket.getNumberOfTickets());

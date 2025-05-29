@@ -15,8 +15,16 @@ public class KafkaProducerService {
 
     public void sendTicketStatusUpdate(String movieName, String theatreName) {
         String message = movieName + "|" + theatreName;
-        kafkaTemplate.send(TOPIC, message);
+        System.out.println("Sending Kafka message: " + message);
+        kafkaTemplate.send(TOPIC, message).whenComplete((result, ex) -> {
+            if (ex != null) {
+                System.out.println("Kafka send failed: " + ex.getMessage());
+            } else {
+                System.out.println("Kafka send succeeded: " + result.getRecordMetadata().toString());
+            }
+        });
     }
+
 }
 
 

@@ -1,14 +1,11 @@
 package com.moviebookingapp.movie_booking_app.kafka;
 
 import com.moviebookingapp.movie_booking_app.Entity.Movie;
-import com.moviebookingapp.movie_booking_app.Entity.Ticket;
 import com.moviebookingapp.movie_booking_app.Repository.MovieRepository;
 import com.moviebookingapp.movie_booking_app.Repository.TicketRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Service;
-import org.springframework.beans.factory.annotation.Autowired;
-
-import java.util.List;
 
 @Service
 class KafkaConsumerService {

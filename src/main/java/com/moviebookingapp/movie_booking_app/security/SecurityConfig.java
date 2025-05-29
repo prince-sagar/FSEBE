@@ -16,11 +16,17 @@ public class SecurityConfig {
         http.csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(
+                                // Auth & public endpoints
                                 "/api/v1.0/moviebooking/login",
                                 "/api/v1.0/moviebooking/register",
+                                "/api/v1.0/moviebooking/all",
+
+                                // Swagger/OpenAPI endpoints
                                 "/swagger-ui.html",
+                                "/swagger-ui/**",
                                 "/v3/api-docs/**",
-                                "/api/v1.0/moviebooking/all"
+                                "/swagger-resources/**",
+                                "/webjars/**"
                         ).permitAll()
                         .requestMatchers(HttpMethod.DELETE, "/api/v1.0/moviebooking/**").hasRole("ADMIN")
                         .requestMatchers("/api/v1.0/moviebooking/**").authenticated()
@@ -30,5 +36,4 @@ public class SecurityConfig {
 
         return http.build();
     }
-
 }
