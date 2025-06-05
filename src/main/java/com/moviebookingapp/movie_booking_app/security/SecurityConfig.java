@@ -11,29 +11,32 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @Configuration
 public class SecurityConfig {
 
-    @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        http.csrf(csrf -> csrf.disable())
-                .authorizeHttpRequests(auth -> auth
-                        .requestMatchers(
-                                // Auth & public endpoints
-                                "/api/v1.0/moviebooking/login",
-                                "/api/v1.0/moviebooking/register",
-                                "/api/v1.0/moviebooking/all",
+  @Bean
+  public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+    http.csrf(csrf -> csrf.disable())
+        .authorizeHttpRequests(
+            auth ->
+                auth.requestMatchers(
+                        // Auth & public endpoints
+                        "/api/v1.0/moviebooking/login",
+                        "/api/v1.0/moviebooking/register",
+                        "/api/v1.0/moviebooking/all",
+                        "/api/v1.0/moviebooking/movies/search/**",
 
-                                // Swagger/OpenAPI endpoints
-                                "/swagger-ui.html",
-                                "/swagger-ui/**",
-                                "/v3/api-docs/**",
-                                "/swagger-resources/**",
-                                "/webjars/**"
-                        ).permitAll()
-                        .requestMatchers(HttpMethod.DELETE, "/api/v1.0/moviebooking/**").hasRole("ADMIN")
-                        .requestMatchers("/api/v1.0/moviebooking/**").authenticated()
-                )
-                .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .addFilterBefore(new JwtFilter(), UsernamePasswordAuthenticationFilter.class);
+                        // Swagger/OpenAPI endpoints
+                        "/swagger-ui.html",
+                        "/swagger-ui/**",
+                        "/v3/api-docs/**",
+                        "/swagger-resources/**",
+                        "/webjars/**")
+                    .permitAll()
+                    .requestMatchers(HttpMethod.DELETE, "/api/v1.0/moviebooking/**")
+                    .hasRole("ADMIN")
+                    .requestMatchers("/api/v1.0/moviebooking/**")
+                    .authenticated())
+        .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+        .addFilterBefore(new JwtFilter(), UsernamePasswordAuthenticationFilter.class);
 
-        return http.build();
-    }
+    return http.build();
+  }
 }
