@@ -20,25 +20,21 @@ public class TicketService {
   @Autowired private KafkaProducerService kafkaProducerService;
 
   public Ticket bookTicket(Ticket ticket) {
-    // Check if movie exists
-    Movie movie =
-        movieRepository.findByMovieNameAndTheatreName(
-            ticket.getMovieName(), ticket.getTheatreName());
+    // 1. Fetch movie
+    Movie movie = movieRepository.findByMovieNameAndTheatreName(ticket.getMovieName(), ticket.getTheatreName());
     if (movie == null) {
       throw new RuntimeException("Movie not found.");
     }
 
-    // Validate availability
-    if (ticket.getNumberOfTickets() > movie.getTotalTickets()) {
+    // 2. Check ticket availability
+    int available = movie.getTotalTickets(); // available tickets
+    if (ticket.getNumberOfTickets() > available) {
       throw new RuntimeException("Not enough tickets available.");
     }
 
-    // Validate seat number
-    List<Ticket> bookedSeats =
-        ticketRepository.findSeatsByMovieNameAndTheatreName(
-            ticket.getMovieName(), ticket.getTheatreName());
-    List<String> bookedSeatNumbers =
-        bookedSeats.stream()
+    // 3. Check for duplicate seat numbers
+    List<Ticket> bookedSeats = ticketRepository.findSeatsByMovieNameAndTheatreName(ticket.getMovieName(), ticket.getTheatreName());
+    List<String> bookedSeatNumbers = bookedSeats.stream()
             .map(Ticket::getSeatNumber)
             .flatMap(seat -> Arrays.stream(seat.split(",")))
             .toList();
@@ -49,18 +45,20 @@ public class TicketService {
       }
     }
 
-    // Subtract tickets and update movie
-    movie.setTotalTickets(movie.getTotalTickets() - ticket.getNumberOfTickets());
-    movieRepository.save(movie);
+    // 4. Reduce available tickets
+    movie.setTotalTickets(available - ticket.getNumberOfTickets());
+    movieRepository.save(movie); // make sure this actually updates
 
-    // Save ticket
+    // 5. Save the ticket
     Ticket saved = ticketRepository.save(ticket);
 
-    // Send update to Kafka (for status update)
+    // 6. Send Kafka update
     kafkaProducerService.sendTicketStatusUpdate(ticket.getMovieName(), ticket.getTheatreName());
 
     return saved;
   }
+
+
 
   public List<Ticket> getTickets(String movieName, String theatreName) {
     return ticketRepository.findByMovieNameAndTheatreName(movieName, theatreName);
